@@ -14,6 +14,7 @@ import requests
 import argparse
 import time
 import codecs
+import MySQLdb
 from bs4 import BeautifulSoup
 from six import u
 
@@ -24,8 +25,9 @@ VERIFY = True
 if sys.version_info[0] < 3:
     VERIFY = False
     requests.packages.urllib3.disable_warnings()
-
-
+    
+db = MySQLdb.connect("localhost","aa","bb","db",charset='utf8' )
+ISFORMAT="%Y-%m-%d %H:%M:%S"
 def crawler(cmdline=None):
    
     
@@ -37,7 +39,7 @@ def crawler(cmdline=None):
         parser.add_argument('--a')
         parser.add_argument('--b')
         parser.add_argument('--i', type=int, nargs=2)
-        args = parser.parse_args('--b movie --i 0 15'.split())
+        args = parser.parse_args('--b movie --i 4257 -1'.split())
     board = args.b
     PTT_URL = 'https://www.ptt.cc'
     if args.i:
@@ -167,6 +169,48 @@ def parse(link, article_id, board):
         'message_conut': message_count,
         'messages': messages
     }
+    
+    rank=0
+    count=0
+    numall=p+b+n
+    
+    
+    cursor = db.cursor()
+  
+    cursor.execute('select * from ptts where pid='"'"+article_id+"'")
+    count = cursor.rowcount
+    title=unicode(title)
+    date=str(date)
+
+    date=time.strptime(date,"%a %b %d %H:%M:%S %Y")
+    date=time.strftime(ISFORMAT,date)
+    
+    msg = 'u'+title
+    encoded = msg.encode('utf8')
+    
+    if encoded.find('好雷')!=-1:
+        rank=1
+    if encoded.find('好微雷')!=-1:
+        rank=1
+    if encoded.find('普雷')!=-1:
+        rank=2
+    if encoded.find('負雷')!=-1:
+        rank=3
+    print(rank)
+    if count==0:
+        
+        cursor.execute('''INSERT into ptts(pid,ptitle,author,date,allrank,rank)
+              values (%s,%s,%s,%s,%s,%s)''',
+              (article_id,title,unicode(author),date,str(numall),str(rank)))
+        db.commit()
+    else :
+        cursor.execute("""UPDATE ptts
+                SET ptitle=%s, allrank=%s, rank=%s
+                WHERE pid=%s""", 
+                (title,str(numall), str(rank), article_id))
+        db.commit()
+    
+    #db.close()
     # print 'original:', d
     return json.dumps(data, indent=4, sort_keys=True, ensure_ascii=False)
 
@@ -177,6 +221,7 @@ def getLastPage(board):
 
 def store(filename, data, mode):
     with codecs.open(filename, mode, encoding='utf-8') as f:
+      
         f.write(data)
 if __name__ == '__main__':
     crawler()
