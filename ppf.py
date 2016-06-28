@@ -187,28 +187,28 @@ def parse(link, article_id, board):
     
     msg = 'u'+title
     encoded = msg.encode('utf8')
-    
-    if encoded.find('好雷')!=-1:
-        rank=1
-    if encoded.find('好微雷')!=-1:
-        rank=1
-    if encoded.find('普雷')!=-1:
-        rank=2
-    if encoded.find('負雷')!=-1:
-        rank=3
-    print(rank)
-    if count==0:
+    if encoded.find('雷')!=-1:
+        if encoded.find('好雷')!=-1:
+            rank=1
+        if encoded.find('好微雷')!=-1:
+            rank=1
+        if encoded.find('普雷')!=-1:
+            rank=2
+        if encoded.find('負雷')!=-1:
+            rank=3
+        print(rank)
+        if count==0:
         
-        cursor.execute('''INSERT into ptts(pid,ptitle,author,date,allrank,rank)
-              values (%s,%s,%s,%s,%s,%s)''',
-              (article_id,title,unicode(author),date,str(numall),str(rank)))
-        db.commit()
-    else :
-        cursor.execute("""UPDATE ptts
-                SET ptitle=%s, allrank=%s, rank=%s
-                WHERE pid=%s""", 
-                (title,str(numall), str(rank), article_id))
-        db.commit()
+            cursor.execute('''INSERT into ptts(pid,ptitle,author,date,allrank,rank)
+                  values (%s,%s,%s,%s,%s,%s)''',
+                (article_id,title,unicode(author),date,str(numall),str(rank)))
+            db.commit()
+        else :
+            cursor.execute("""UPDATE ptts
+                   SET ptitle=%s, allrank=%s, rank=%s
+                  WHERE pid=%s""", 
+                  (title,str(numall), str(rank), article_id))
+            db.commit()
     
     #db.close()
     # print 'original:', d
