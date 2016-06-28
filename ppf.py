@@ -37,7 +37,7 @@ def crawler(cmdline=None):
         parser.add_argument('--a')
         parser.add_argument('--b')
         parser.add_argument('--i', type=int, nargs=2)
-        args = parser.parse_args('--b movie --i 0 10'.split())
+        args = parser.parse_args('--b movie --i 0 15'.split())
     board = args.b
     PTT_URL = 'https://www.ptt.cc'
     if args.i:
