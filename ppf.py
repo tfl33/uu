@@ -27,21 +27,17 @@ if sys.version_info[0] < 3:
 
 
 def crawler(cmdline=None):
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description='''
-        A crawler for the web version of PTT, the largest online community in Taiwan.
-        Input: board name and page indices (or articla ID)
-        Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
-    ''')
-    parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
-    group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+   
+    
 
     if cmdline:
         args = parser.parse_args(cmdline)
     else:
-       args = parser.parse_args()
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--a')
+        parser.add_argument('--b')
+        parser.add_argument('--i', type=int, nargs=2)
+        args = parser.parse_args('--b movie --i 0 10'.split())
     board = args.b
     PTT_URL = 'https://www.ptt.cc'
     if args.i:
